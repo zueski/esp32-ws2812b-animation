@@ -14,8 +14,9 @@ debug = true    # Symbols are nice and they don't increase the size on Flash
 opt-level = "z"
 
 [features]
-default = ["std", "hal", "esp-idf-sys/native"]
+default = ["std", "hal", "esp-idf-sys/native", "native"]
 
+native = ["esp-idf-sys/native"]
 pio = ["esp-idf-sys/pio"]
 all = ["std", "nightly", "experimental", "embassy"]
 hal = ["esp-idf-hal", "embedded-svc", "esp-idf-svc"]
@@ -35,8 +36,9 @@ embedded-svc = { version = "0.25", optional = true, default-features = false }
 ws2812-esp32-rmt-driver = "0.5.0"
 smart-leds-trait = "0.2.1"
 
+anyhow = "=1.0.69"
+
 [build-dependencies]
 embuild = "0.31.2"
-anyhow = "1"
 png = "0.17.8"
 regex = "1"
