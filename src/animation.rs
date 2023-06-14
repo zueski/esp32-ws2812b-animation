@@ -73,6 +73,7 @@ impl AnimationSequence {
 		let mut frame: Vec<RGB8> = Vec::with_capacity(pixels);
 		for y in 0..y_size {
 			for x in 0..x_size {
+	// allows back and forth routing
 	//~ 			let xp;
 	//~ 			if y % 2 == 0 {
 	//~ 				xp = x;

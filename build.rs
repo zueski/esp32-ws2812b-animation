@@ -18,11 +18,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	paths.sort_by_key(|dir| dir.path());
 	
 	let mut image_seqs: HashMap<String,Vec<PathBuf>> = HashMap::new();
-	//let mut names: Vec<String>;
-	//let mut dir_entry: &DirEntry;
-	//let mut path: PathBuf;
 	for dir_entry in paths {
-		//dir_entry = &path_buf;
 		let path = dir_entry.path().to_owned();
 		let filename = &path.file_name().ok_or("")?.to_str().ok_or("")?;
 		let filename_capt = filename_re.captures(&filename).expect(format!("file name {:?} does not match pattern {:?}", filename, filename_re).as_str());
@@ -56,10 +52,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 			writeln!(log_file, "Reading d {}, found png sized {} {} with {} bytes", path.display(), &info.width, &info.height, reader.output_buffer_size())?;
 			if is_first_image {
 				writeln!(genfile, "pub const {}_COUNT: usize = {};", name, frame_count)?;
-				//writeln!(genfile, "pub const {}_FRAME_SIZE: usize = {};", name, reader.output_buffer_size()/4)?;
 				writeln!(genfile, "pub const {}_X_LEN: usize = {};", name, info.width)?;
 				writeln!(genfile, "pub const {}_Y_LEN: usize = {};", name, info.height)?;
-				//writeln!(genfile, "pub const {}_FRAMES: [[u8; {}]; {}] = [", name, reader.output_buffer_size(), frame_count)?;
 				writeln!(genfile, "pub const {}_FRAMES: [[u8; {}]; {}] = [", name, reader.output_buffer_size(), frame_count)?;
 				is_first_image = false;
 			}
@@ -68,8 +62,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 		}
 	}
 	writeln!(genfile, "];")?;
-	//let out_dir = env::var_os("OUT_DIR").unwrap();
-	//let dest_path = Path::new(&out_dir).join("images.rs");
 	let dest_path = Path::new("src").join("images.rs");
 	fs::write(&dest_path,genfile)?;
 	// esp

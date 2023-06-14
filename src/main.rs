@@ -6,8 +6,6 @@ use std::time::Duration;
 use ws2812_esp32_rmt_driver::driver::color::LedPixelColorGrb24;
 use ws2812_esp32_rmt_driver::{LedPixelEsp32Rmt, RGB8};
 
-//use anyhow::Result;
-use esp_idf_hal::prelude::Peripherals;
 use std::thread;
 use std::ptr;
 use std::iter;
@@ -44,15 +42,15 @@ fn main() {
 	// Bind the log crate to the ESP Logging facilities
 	esp_idf_svc::log::EspLogger::initialize_default();
 	
-	// button setup
-	let peripherals = Peripherals::take().unwrap();
-	
 	//let mut led = WS2812RMT::new(peripherals.pins.gpio2, peripherals.rmt.channel0)?;
-	const GPIO_NUM: i32 = 2;
+	const BUTTON_GPIO_NUM: i32 = 2;
+	
+	// gpio19
+	const LED_PIN_GPIO_NUM: u32 = 19;
 	
 	// Configures the button
 	let io_conf = esp_idf_sys::gpio_config_t {
-		pin_bit_mask: 1 << GPIO_NUM,
+		pin_bit_mask: 1 << BUTTON_GPIO_NUM,
 		mode: esp_idf_sys::gpio_mode_t_GPIO_MODE_INPUT,
 		pull_up_en: true.into(),
 		pull_down_en: false.into(),
@@ -100,7 +98,7 @@ fn main() {
 		EVENT_QUEUE = Some(esp_idf_sys::xQueueGenericCreate(QUEUE_SIZE, ITEM_SIZE, QUEUE_TYPE_BASE));
 		// Registers our function with the generic GPIO interrupt handler we installed earlier.
 		let _ = esp_idf_sys::esp!(esp_idf_sys::gpio_isr_handler_add(
-			GPIO_NUM,
+			BUTTON_GPIO_NUM,
 			Some(button_interrupt),
 			std::ptr::null_mut()
 		));
@@ -127,14 +125,10 @@ fn main() {
 				}
 				_ => {}
 			};
-		
 		}
 	});
 	
-	// gpio19
-	let led_pin = 19;
-	let mut ws2812 = LedPixelEsp32Rmt::<RGB8, LedPixelColorGrb24>::new(0, led_pin).unwrap();
-	
+	let mut ws2812 = LedPixelEsp32Rmt::<RGB8, LedPixelColorGrb24>::new(0, LED_PIN_GPIO_NUM).unwrap();
 	loop {
 		let mut delay_ms = 20;
 		if let Ok(mut a) = animation_state.lock() {
@@ -156,9 +150,7 @@ fn random_light<CDev: std::convert::From<smart_leds_trait::RGB<u8>> + ws2812_esp
 		let r = esp_idf_sys::esp_random() as u8;
 		let g = esp_idf_sys::esp_random() as u8;
 		let b = esp_idf_sys::esp_random() as u8;
-
 		color = RGB8::new(r, g, b);
 	}
-
 	led.write(iter::once(color)).unwrap();
 }
